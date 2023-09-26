@@ -1,4 +1,4 @@
-# Minefield Server
+# Minesweeper Server
 Minefield game developed as an assignment for the Computer Networks course in CS @UFMG
 
 The object of this assignment is to create a version of the Minefield game that allows interaction between a client and a server using sockets in a C environment.
