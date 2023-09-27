@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 
-#define TABLE_DIMENSION 4
+#include "common.h"
 
 int** mount_table(char *file)
 {
@@ -22,6 +24,27 @@ int** mount_table(char *file)
             fscanf(table_input, "%d,", &table[i][j]);
 
     return table;
+}
+
+int create_socket(char *ip_version)
+{
+    int sockfd;
+    
+    if(strcmp(ip_version, "v4") != 0 && strcmp(ip_version, "v6") != 0)
+    {
+        printf("Error! Invalid IP Version\n");
+        exit(1);
+    }
+    if(strcmp(ip_version, "v4") == 0)
+        sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+    else if(strcmp(ip_version, "v6") == 0)
+        sockfd = socket(AF_INET6, SOCK_STREAM, 0);
+
+    if(sockfd == -1) 
+        logexit("socket");
+    
+    return sockfd;
 }
 
 int main(int argc, char *argv[])
@@ -56,9 +79,14 @@ int main(int argc, char *argv[])
 
     printf("IP Version: %s\n", ip_version);
     printf("Port: %d\n", port);
-    printf("Input File: %s\n", input_file);
+    
+    int** table = mount_table(input_file);
 
+    int sockfd = create_socket(ip_version);
+    
     //strcmp para versão de ip
+    
+    
 
     return 0;
 }
