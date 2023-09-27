@@ -23,5 +23,5 @@ int main(int argc, char *argv[])
     
     if(connect(sockfd, (struct sockaddr *) &ip, sizeof(ip)) == -1)
         logexit("connect");
-
+    
 }

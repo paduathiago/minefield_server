@@ -9,7 +9,7 @@
 int** mount_table(char *file)
 {
     int** table = (int**)malloc(TABLE_DIMENSION * sizeof(int*));
-    for (int i = 0; i < 4; i++) 
+    for (int i = 0; i < TABLE_DIMENSION; i++) 
         table[i] = (int*)malloc(TABLE_DIMENSION * sizeof(int));
     
     FILE *table_input = fopen(file, "r");
@@ -84,8 +84,8 @@ int main(int argc, char *argv[])
 
     int sockfd = create_socket(ip_version);
     
-    //strcmp para versão de ip
-    
+    //bind(sockfd,);
+    //listen(sockfd);
     
 
     return 0;
