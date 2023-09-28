@@ -6,11 +6,11 @@
 
 #include "common.h"
 
-int** mount_table(char *file)
+int** mount_board(char *file)
 {
-    int** table = (int**)malloc(TABLE_DIMENSION * sizeof(int*));
+    int** board = (int**)malloc(TABLE_DIMENSION * sizeof(int*));
     for (int i = 0; i < TABLE_DIMENSION; i++) 
-        table[i] = (int*)malloc(TABLE_DIMENSION * sizeof(int));
+        board[i] = (int*)malloc(TABLE_DIMENSION * sizeof(int));
     
     FILE *table_input = fopen(file, "r");
     if (table_input == NULL) 
@@ -21,9 +21,10 @@ int** mount_table(char *file)
 
     for (int i = 0; i < TABLE_DIMENSION; i++)
         for(int j = 0; j < TABLE_DIMENSION; j++)
-            fscanf(table_input, "%d,", &table[i][j]);
+            fscanf(table_input, "%d,", &board[i][j]);
 
-    return table;
+    fclose(table_input);
+    return board;
 }
 
 int create_socket(char *ip_version)
@@ -80,12 +81,17 @@ int main(int argc, char *argv[])
     printf("IP Version: %s\n", ip_version);
     printf("Port: %d\n", port);
     
-    int** table = mount_table(input_file);
+    int** board = mount_board(input_file);
 
-    int sockfd = create_socket(ip_version);
+    struct sockaddr_storage storage;
+
+    int sockfd = create_socket(ip_version); // CHANGE!!
     
-    //bind(sockfd,);
-    //listen(sockfd);
+    if(bind(sockfd, (struct sockaddr *)&storage, sizeof(storage)) != 0)
+        logexit("bind");
+
+    if(listen(sockfd, 1) != 0)
+        logexit("listen");
     
 
     return 0;

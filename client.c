@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
         struct action action;
 
         char action_str[COMMAND_LEN];
-        if(scanf("%20s", &action_str) != 1)
+        if(scanf("%20s", &action_str) != 1)  // it might be necessary to replace scanf with fgets
         {
             printf("error: command not found");
             return 1;
@@ -46,10 +46,12 @@ int main(int argc, char *argv[])
             action.coordinates[1] = -1;
         }
 
-        if(send(sockfd, &action, sizeof(action), 0) == -1)
+        int count_bytes_sent = send(sockfd, &action, sizeof(struct action), 0);
+        if(count_bytes_sent != sizeof(struct action))
             logexit("send");
 
-    }
+        int total_bytes_received = receive_all(sockfd, &action, sizeof(struct action));
+        
 
-    
+    }
 }

@@ -77,3 +77,26 @@ int encode_action(const char *action_str)  // it may be possible that server act
         return -1;
     }
 }
+
+ssize_t receive_all(int socket, void *buffer, size_t size) {
+    char *ptr = (char *)buffer;
+    ssize_t total_received = 0;
+
+    while (total_received < size) {
+        ssize_t bytes_received = recv(socket, ptr + total_received, size - total_received, 0);
+
+        if (bytes_received <= 0) {
+            if (bytes_received == 0)  // Connection closed by peer
+                return total_received;
+            else 
+            {
+                perror("Error ao receber dados");
+                return -1;
+            }
+        }
+
+        total_received += bytes_received;
+    }
+
+    return total_received;
+}
