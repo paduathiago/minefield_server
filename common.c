@@ -7,6 +7,70 @@ void logexit(const char *msg)
     exit(EXIT_FAILURE);
 }
 
+char** mount_answer_board(int **board)
+{
+    char** answer = (char**)malloc(TABLE_DIMENSION * sizeof(char*));
+    for (int i = 0; i < TABLE_DIMENSION; i++) 
+        answer[i] = (char*)malloc(TABLE_DIMENSION * sizeof(char));
+    
+    for (int i = 0; i < TABLE_DIMENSION; i++)
+    {
+        for(int j = 0; j < TABLE_DIMENSION; j++)
+        {
+            int count_bombs = 0;
+            if(board[i][j] == -1)  // case when cell has a bomb
+            {
+                answer[i][j] = '*';
+                continue;
+            }
+            if(board[i][j] == -2)
+            {
+                answer[i][j] = '-';
+                continue;
+            }
+            if(board[i][j] == -3)
+            {
+                answer[i][j] = '>';
+                continue;
+            }
+            if (i > 0) {
+                if(board[i - 1][j] == -1)  //north neighbor
+                    count_bombs++;
+            }
+            if (i < TABLE_DIMENSION - 1) {
+                if(board[i + 1][j] == -1)  // south neighbor
+                    count_bombs++;
+            }
+            if (j > 0) {
+                if(board[i][j - 1] == -1)  // west neighbor
+                    count_bombs++;
+            }
+            if (j < TABLE_DIMENSION - 1) {
+                if(board[i][j + 1] == -1)  // east neighbor
+                    count_bombs++;
+            }
+            if (i > 0 && j > 0) {
+                if(board[i - 1][j - 1] == -1)  // northwest neighbor
+                    count_bombs++;
+            }
+            if (i > 0 && j < TABLE_DIMENSION - 1) {
+                if(board[i - 1][j + 1] == -1)  // northeast neighbor
+                    count_bombs++;
+            }
+            if (i < TABLE_DIMENSION - 1 && j > 0) {
+                if(board[i + 1][j - 1] == -1)  // southwest neighbor
+                    count_bombs++;
+            }
+            if (i < TABLE_DIMENSION -1 && j < TABLE_DIMENSION - 1) {
+                if(board[i + 1][j + 1] == -1)  // southeast neighbor
+                    count_bombs++;
+            }
+            sprintf(&answer[i][j], "%d", count_bombs);
+        }
+    }
+    return answer;
+}
+
 void parse_addr(const char *addrstr, const char *addrport, struct socket_storage *storage)
 {
     if(addrport == NULL || addrstr == NULL)
@@ -122,4 +186,13 @@ size_t receive_all(int socket, void *buffer, size_t size) {
     }
 
     return total_received;
+}
+
+void print_board(char **board)
+{
+    for(int i = 0; i < TABLE_DIMENSION; i++)
+    {
+        for(int j = 0; j < TABLE_DIMENSION; j++)
+            printf("%c\t\t", board[i][j]);
+    }
 }
