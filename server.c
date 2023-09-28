@@ -27,6 +27,60 @@ int** mount_board(char *file)
     return board;
 }
 
+char** mount_answer_board(int **board)
+{
+    char** answer = (char**)malloc(TABLE_DIMENSION * sizeof(char*));
+    for (int i = 0; i < TABLE_DIMENSION; i++) 
+        answer[i] = (char*)malloc(TABLE_DIMENSION * sizeof(char));
+    
+    for (int i = 0; i < TABLE_DIMENSION; i++)
+    {
+        for(int j = 0; j < TABLE_DIMENSION; j++)
+        {
+            int count_bombs = 0;
+            if(board[i][j] == -1)  // case when cell has a bomb
+            {
+                answer[i][j] = '*';
+                continue;
+            }
+            if (i > 0) {
+                if(board[i - 1][j] == -1)  //north neighbor
+                    count_bombs++;
+            }
+            if (i < TABLE_DIMENSION - 1) {
+                if(board[i + 1][j] == -1)  // south neighbor
+                    count_bombs++;
+            }
+            if (j > 0) {
+                if(board[i][j - 1] == -1)  // west neighbor
+                    count_bombs++;
+            }
+            if (j < TABLE_DIMENSION - 1) {
+                if(board[i][j + 1] == -1)  // east neighbor
+                    count_bombs++;
+            }
+            if (i > 0 && j > 0) {
+                if(board[i - 1][j - 1] == -1)  // northwest neighbor
+                    count_bombs++;
+            }
+            if (i > 0 && j < TABLE_DIMENSION - 1) {
+                if(board[i - 1][j + 1] == -1)  // northeast neighbor
+                    count_bombs++;
+            }
+            if (i < TABLE_DIMENSION - 1 && j > 0) {
+                if(board[i + 1][j - 1] == -1)  // southwest neighbor
+                    count_bombs++;
+            }
+            if (i < TABLE_DIMENSION -1 && j < TABLE_DIMENSION - 1) {
+                if(board[i + 1][j + 1] == -1)  // southeast neighbor
+                    count_bombs++;
+            }
+            sprintf(&answer[i][j], "%d", count_bombs);
+        }
+    }
+    return answer;
+}
+
 
 int main(int argc, char *argv[])
 {    
@@ -62,6 +116,7 @@ int main(int argc, char *argv[])
     printf("Port: %d\n", port);
     
     int** board = mount_board(input_file);
+    char** answer_board = mount_answer_board(board);
 
     struct sockaddr_storage storage;
 
@@ -87,6 +142,9 @@ int main(int argc, char *argv[])
         printf("client connected");
 
         size_t total_bytes_received = receive_all(client_sock, &action_received, sizeof(struct action));
+        if(total_bytes_received != sizeof(struct action))
+            logexit("receive_all");
+
 
     }
 
