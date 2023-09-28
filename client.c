@@ -5,6 +5,8 @@
 
 #include "common.h"
 
+#define COMMAND_LEN 12
+
 int main(int argc, char *argv[])
 {
     if(argc != 3)
@@ -18,7 +20,7 @@ int main(int argc, char *argv[])
         logexit("parse_addr");
 
     // it is still necessary to make it flexible to ipv6
-    int sockfd = socket(, SOCK_STREAM, 0);
+    int sockfd = socket(storage.ss_family, SOCK_STREAM, 0);
     if(sockfd == -1) 
         logexit("socket");
 
@@ -26,6 +28,28 @@ int main(int argc, char *argv[])
     if(connect(sockfd, addr, sizeof(storage)) != 0)
         logexit("connect");
 
-    
+    while(1)
+    {
+        struct action action;
+
+        char action_str[COMMAND_LEN];
+        if(scanf("%20s", &action_str) != 1)
+        {
+            printf("error: command not found");
+            return 1;
+        }
+        action.type = encode_action(action_str);
+
+        if(scanf("%d %d", &action.coordinates[0], &action.coordinates[1]) != 2)
+        {
+            action.coordinates[0] = -1;
+            action.coordinates[1] = -1;
+        }
+
+        if(send(sockfd, &action, sizeof(action), 0) == -1)
+            logexit("send");
+
+    }
+
     
 }

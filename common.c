@@ -7,7 +7,6 @@ void logexit(const char *msg)
     exit(EXIT_FAILURE);
 }
 
-
 void parse_addr(const char *addrstr, const char *addrport, struct socket_storage *storage)
 {
     if(addrport == NULL || addrstr == NULL)
@@ -49,5 +48,32 @@ void parse_addr(const char *addrstr, const char *addrport, struct socket_storage
     {
         printf("Error! Invalid IP\n");
         exit(1);
+    }
+}
+
+int encode_action(const char *action_str)  // it may be possible that server actions dont need to be encoded
+{
+    if(!strcmp(action_str, "start"))
+        return 0;
+    else if(!strcmp(action_str, "reveal"))
+        return 1;
+    else if(!strcmp(action_str, "flag"))
+        return 2;
+    else if(!strcmp(action_str, "state"))
+        return 3;
+    else if(!strcmp(action_str, "remove_flag"))
+        return 4;
+    else if(!strcmp(action_str, "reset"))
+        return 5;
+    else if(!strcmp(action_str, "win"))
+        return 6;
+    else if(!strcmp(action_str, "exit"))
+        return 7;
+    else if (!strcmp(action_str, "game_over"))
+        return 8;
+    else
+    {
+        printf("error: command not found");
+        return -1;
     }
 }
