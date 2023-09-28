@@ -13,15 +13,19 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    char *ip = argv[1];
-    int port = atoi(argv[2]);
+    struct sockaddr_storage storage;
+    if (parse_addr(argv[1], argv[2], &storage) != 0)
+        logexit("parse_addr");
 
     // it is still necessary to make it flexible to ipv6
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    int sockfd = socket(, SOCK_STREAM, 0);
     if(sockfd == -1) 
         logexit("socket");
-    
-    if(connect(sockfd, (struct sockaddr *) &ip, sizeof(ip)) == -1)
+
+    struct sockaddr *addr = (struct sockaddr *)(&storage);
+    if(connect(sockfd, addr, sizeof(storage)) != 0)
         logexit("connect");
+
+    
     
 }
