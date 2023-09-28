@@ -27,26 +27,6 @@ int** mount_board(char *file)
     return board;
 }
 
-int create_socket(char *ip_version)
-{
-    int sockfd;
-    
-    if(strcmp(ip_version, "v4") != 0 && strcmp(ip_version, "v6") != 0)
-    {
-        printf("Error! Invalid IP Version\n");
-        exit(1);
-    }
-    if(strcmp(ip_version, "v4") == 0)
-        sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-    else if(strcmp(ip_version, "v6") == 0)
-        sockfd = socket(AF_INET6, SOCK_STREAM, 0);
-
-    if(sockfd == -1) 
-        logexit("socket");
-    
-    return sockfd;
-}
 
 int main(int argc, char *argv[])
 {    
@@ -78,14 +58,15 @@ int main(int argc, char *argv[])
         }
     }
 
-    printf("IP Version: %s\n", ip_version);
+    printf("IP Version: %s\n", ip_version); // REMOVE
     printf("Port: %d\n", port);
     
     int** board = mount_board(input_file);
 
     struct sockaddr_storage storage;
 
-    int sockfd = create_socket(ip_version); // CHANGE!!
+    server_sockaddr_init(ip_version, port, &storage);
+    int sockfd = socket(storage.ss_family, SOCK_STREAM, 0);
     
     if(bind(sockfd, (struct sockaddr *)&storage, sizeof(storage)) != 0)
         logexit("bind");
@@ -93,6 +74,21 @@ int main(int argc, char *argv[])
     if(listen(sockfd, 1) != 0)
         logexit("listen");
     
+    struct sockaddr_storage client_storage;
+    struct sockaddr * client_addr = (struct sockaddr *) (&client_storage);
+    struct action action_received;
+    struct action action_sent;
+    
+    while (1)
+    {
+        int client_sock = accept(sockfd, client_addr, sizeof(client_storage));
+        if(client_sock == -1)
+            logexit("accept");
+        printf("client connected");
+
+        size_t total_bytes_received = receive_all(client_sock, &action_received, sizeof(struct action));
+
+    }
 
     return 0;
 }

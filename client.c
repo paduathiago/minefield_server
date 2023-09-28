@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
             action.coordinates[1] = -1;
         }
 
-        int count_bytes_sent = send(sockfd, &action, sizeof(struct action), 0);
+        size_t count_bytes_sent = send(sockfd, &action, sizeof(struct action), 0);
         if(count_bytes_sent != sizeof(struct action))
             logexit("send");
 
