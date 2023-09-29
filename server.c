@@ -27,60 +27,33 @@ int** mount_board(char *file)
     return board;
 }
 
-char** mount_answer_board(int **board)
+int** init_current_board()
 {
-    char** answer = (char**)malloc(TABLE_DIMENSION * sizeof(char*));
-    for (int i = 0; i < TABLE_DIMENSION; i++) 
-        answer[i] = (char*)malloc(TABLE_DIMENSION * sizeof(char));
-    
+    int** board = (int**)malloc(TABLE_DIMENSION * sizeof(int*));
     for (int i = 0; i < TABLE_DIMENSION; i++)
     {
-        for(int j = 0; j < TABLE_DIMENSION; j++)
-        {
-            int count_bombs = 0;
-            if(board[i][j] == -1)  // case when cell has a bomb
-            {
-                answer[i][j] = '*';
-                continue;
-            }
-            if (i > 0) {
-                if(board[i - 1][j] == -1)  //north neighbor
-                    count_bombs++;
-            }
-            if (i < TABLE_DIMENSION - 1) {
-                if(board[i + 1][j] == -1)  // south neighbor
-                    count_bombs++;
-            }
-            if (j > 0) {
-                if(board[i][j - 1] == -1)  // west neighbor
-                    count_bombs++;
-            }
-            if (j < TABLE_DIMENSION - 1) {
-                if(board[i][j + 1] == -1)  // east neighbor
-                    count_bombs++;
-            }
-            if (i > 0 && j > 0) {
-                if(board[i - 1][j - 1] == -1)  // northwest neighbor
-                    count_bombs++;
-            }
-            if (i > 0 && j < TABLE_DIMENSION - 1) {
-                if(board[i - 1][j + 1] == -1)  // northeast neighbor
-                    count_bombs++;
-            }
-            if (i < TABLE_DIMENSION - 1 && j > 0) {
-                if(board[i + 1][j - 1] == -1)  // southwest neighbor
-                    count_bombs++;
-            }
-            if (i < TABLE_DIMENSION -1 && j < TABLE_DIMENSION - 1) {
-                if(board[i + 1][j + 1] == -1)  // southeast neighbor
-                    count_bombs++;
-            }
-            sprintf(&answer[i][j], "%d", count_bombs);
-        }
+        board[i] = (int*)malloc(TABLE_DIMENSION * sizeof(int));
+        memset(board[i], -2, TABLE_DIMENSION * sizeof(int));
     }
-    return answer;
+
+    return board;
 }
 
+struct action process_action(struct action action_received)
+{
+    struct action action_sent;
+    if(action_received.type == 0)
+    {
+        int **initial_board = init_current_board();
+        for (int i = 0; i < TABLE_DIMENSION; i++) 
+        {
+            for (int j = 0; j < TABLE_DIMENSION; j++)
+                action_sent.board[i][j] = initial_board[i][j];
+        }
+        action_sent.type = 3;
+    }
+    
+}
 
 int main(int argc, char *argv[])
 {    
@@ -117,6 +90,7 @@ int main(int argc, char *argv[])
     
     int** board = mount_board(input_file);
     char** answer_board = mount_answer_board(board);
+    print_board(answer_board);
 
     struct sockaddr_storage storage;
 
@@ -145,7 +119,7 @@ int main(int argc, char *argv[])
         if(total_bytes_received != sizeof(struct action))
             logexit("receive_all");
 
-
+        
     }
 
     return 0;
