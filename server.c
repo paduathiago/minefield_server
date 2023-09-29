@@ -53,7 +53,7 @@ int **mount_board(char *file)
     return board;
 }
 
-struct action process_action(struct action action_received, const int **answer_board_int, int **current_board, int *revealed)
+struct action process_action(struct action action_received, const int **answer_board_int, int **current_board, int *count_revealed)
 {
     struct action action_sent;
     if (action_received.type == 0)  // start
@@ -61,26 +61,24 @@ struct action process_action(struct action action_received, const int **answer_b
 
     else if (action_received.type == 1)  // reveal
     {
-        int revealed = answer_board_int[action_received.coordinates[0]][action_received.coordinates[1]];
+        int revealed_cell = answer_board_int[action_received.coordinates[0]][action_received.coordinates[1]];
     
-        if(revealed == -1)
+        if(revealed_cell == -1)
         {
             action_sent.type = 8;  // game over
-            revealed = 0;
+            count_revealed = 0;
             for (int i = 0; i < TABLE_DIMENSION; i++)
             {
                 for (int j = 0; j < TABLE_DIMENSION; j++)
                     action_sent.board[i][j] = answer_board_int[i][j];
             }
-            return action_sent;
         }
         else
         {
-            current_board[action_received.coordinates[0]][action_received.coordinates[1]] = revealed;
-            action_sent.board[action_received.coordinates[0]][action_received.coordinates[1]] = revealed;
-            // treat win case
-            revealed++;
-            if(revealed == (TABLE_DIMENSION * NBOMBS) - NBOMBS)
+            current_board[action_received.coordinates[0]][action_received.coordinates[1]] = revealed_cell;
+            action_sent.board[action_received.coordinates[0]][action_received.coordinates[1]] = revealed_cell;
+            count_revealed++;
+            if(count_revealed == (TABLE_DIMENSION * NBOMBS) - NBOMBS)
             {
                 action_sent.type = 6;  // win
                 for (int i = 0; i < TABLE_DIMENSION; i++)
@@ -90,7 +88,6 @@ struct action process_action(struct action action_received, const int **answer_b
                 }
                 return action_sent;
             }
-            
             action_sent.type = 3;
         }  
     }
@@ -110,9 +107,9 @@ struct action process_action(struct action action_received, const int **answer_b
     {
         printf("starting new_game\n");
         start_new_game(&action_sent, current_board);
-        revealed = 0;
+        count_revealed = 0;
     }
-
+    return action_sent;
     
 }
 
@@ -151,7 +148,7 @@ int main(int argc, char *argv[])
 
     int **current_board;
     int **answer_board_int = mount_board(input_file);
-    char **answer_board_char = mount_answer_board(answer_board_int);  // incluir na função abaixo
+    char **answer_board_char = mount_answer_board(answer_board_int);
     print_board(answer_board_char);
 
     struct sockaddr_storage storage;
@@ -170,7 +167,7 @@ int main(int argc, char *argv[])
     struct action action_received;
     struct action action_sent;
 
-    int revealed = 0;
+    int count_revealed = 0;
 
     while (1)
     {
@@ -183,8 +180,7 @@ int main(int argc, char *argv[])
         if (total_bytes_received != sizeof(struct action))
             logexit("receive_all");
 
-        action_sent = process_action(action_received, answer_board_int, current_board, &revealed);
-        // current_board = action_sent.board;
+        action_sent = process_action(action_received, answer_board_int, current_board, &count_revealed);
     }
 
     return 0;
