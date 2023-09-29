@@ -6,6 +6,17 @@
 
 #include "common.h"
 
+void start_new_game(struct action *action_sent, int **current_board)
+{
+    current_board = init_current_board();
+    for (int i = 0; i < TABLE_DIMENSION; i++)
+    {
+        for (int j = 0; j < TABLE_DIMENSION; j++)
+            action_sent->board[i][j] = current_board[i][j];
+    }
+    action_sent->type = 3;
+}
+
 int **mount_board(char *file)
 {
     int **board = (int **)malloc(TABLE_DIMENSION * sizeof(int *));
@@ -46,16 +57,8 @@ struct action process_action(struct action action_received, const int **answer_b
 {
     struct action action_sent;
     if (action_received.type == 0)  // start
-    {
-        int **initial_board = init_current_board();
-        current_board = initial_board;
-        for (int i = 0; i < TABLE_DIMENSION; i++)
-        {
-            for (int j = 0; j < TABLE_DIMENSION; j++)
-                action_sent.board[i][j] = initial_board[i][j];
-        }
-        action_sent.type = 3;
-    }
+        start_new_game(&action_sent, current_board);
+
     else if (action_received.type == 1)  // reveal
     {
         int revealed = answer_board_int[action_received.coordinates[0]][action_received.coordinates[1]];
@@ -76,6 +79,24 @@ struct action process_action(struct action action_received, const int **answer_b
             action_sent.type = 3;
         }  
     }
+    else if (action_received.type == 2)  // flag
+    {
+        current_board[action_received.coordinates[0]][action_received.coordinates[1]] = -3;
+        action_sent.board[action_received.coordinates[0]][action_received.coordinates[1]] = -3;
+        action_sent.type = 3;
+    }
+    else if (action_received.type == 4)  // remove_flag
+    {
+        current_board[action_received.coordinates[0]][action_received.coordinates[1]] = -2;
+        action_sent.board[action_received.coordinates[0]][action_received.coordinates[1]] = -2;
+        action_sent.type = 3;
+    }
+    else if (action_received.type == 5)  // reset
+    {
+        printf("starting new_game\n");
+        start_new_game(&action_sent, current_board);
+    }
+    
 }
 
 int main(int argc, char *argv[])
