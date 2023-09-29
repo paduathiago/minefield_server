@@ -181,6 +181,9 @@ int main(int argc, char *argv[])
             logexit("receive_all");
 
         action_sent = process_action(action_received, answer_board_int, current_board, &count_revealed);
+        size_t count_bytes_sent = send(sockfd, &action_sent, sizeof(struct action), 0);
+        if(count_bytes_sent != sizeof(struct action))
+            logexit("send");
     }
 
     return 0;

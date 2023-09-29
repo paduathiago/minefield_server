@@ -6,6 +6,62 @@
 #include "common.h"
 
 #define COMMAND_LEN 12
+#define NCOMMANDS 6
+
+int is_input_valid(const struct action action_received, const char *command, const int x, const int y)
+{
+    char *valid_commands[] = {"start", "reveal", "flag", "remove_flag", "reset", "exit"};
+    int is_command_found = 0;
+    for(int i = 0; i < NCOMMANDS; i++)
+    {
+        if(!strcmp(command, valid_commands[i]))
+        {
+            is_command_found = 1;
+            break;
+        }
+    }
+    if(!is_command_found)
+    {
+        printf("error: command not found");
+        return 0;
+    }
+    if(x < 0 || x >= TABLE_DIMENSION || y < 0 || y >= TABLE_DIMENSION)
+    {
+        printf("error: invalid cell");
+        return 0;
+    }
+    if(!strcmp(command, "reveal"))
+    {
+        if(action_received.board[x][y] != -2)
+        {
+            printf("error: cell already revealed");
+            return 0;
+        }
+    }
+    else if(!strcmp(command, "flag"))
+    {
+        if(action_received.board[x][y] == -3)
+        {
+            printf("error: cell already has a flag");
+            return 0;
+        }
+        if(action_received.board[x][y] != -2)
+        {
+            printf("error: cannot insert flag in revealed cell");
+            return 0;
+        }
+        
+    }
+    else if(!strcmp(command, "remove_flag"))
+    {
+        if(action_received.board[x][y] != -3)
+        {
+            printf("error: cell does not have a flag");
+            return 0;
+        }
+    }
+    return 1;
+}
 
 int main(int argc, char *argv[])
 {
@@ -28,30 +84,35 @@ int main(int argc, char *argv[])
     if(connect(sockfd, addr, sizeof(storage)) != 0)
         logexit("connect");
 
+    struct action action_received;
     while(1)
     {
-        struct action action;
-
+        struct action action_sent;
+        action_sent.type = -1;
+        
         char action_str[COMMAND_LEN];
-        if(scanf("%20s", &action_str) != 1)  // it might be necessary to replace scanf with fgets
+        char line[50];
+        int is_in_valid = 0;
+              
+        while(!is_in_valid)  // trap to ensure input is free of errors
         {
-            printf("error: command not found");
-            return 1;
+            fgets(line, sizeof(line), stdin);
+            int entries = sscanf(line, "%s %d,%d", action_str, &action_sent.coordinates[0], &action_sent.coordinates[1]);
+            if(entries != 3)
+            {
+                action_sent.coordinates[0] = -1;
+                action_sent.coordinates[1] = -1;
+            }
+            is_in_valid = is_input_valid(action_received, action_str, action_sent.coordinates[0], action_sent.coordinates[1]);
         }
-        action.type = encode_action(action_str);
+        action_sent.type == encode_action(action_str);
 
-        if(scanf("%d %d", &action.coordinates[0], &action.coordinates[1]) != 2)
-        {
-            action.coordinates[0] = -1;
-            action.coordinates[1] = -1;
-        }
-
-        size_t count_bytes_sent = send(sockfd, &action, sizeof(struct action), 0);
+        size_t count_bytes_sent = send(sockfd, &action_sent, sizeof(struct action), 0);
         if(count_bytes_sent != sizeof(struct action))
             logexit("send");
 
-        int total_bytes_received = receive_all(sockfd, &action, sizeof(struct action));
-        
-
+        int total_bytes_received = receive_all(sockfd, &action_received, sizeof(struct action));
+        if(total_bytes_received != sizeof(struct action))
+            logexit("receive_all");
     }
 }

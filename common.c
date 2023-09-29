@@ -146,23 +146,14 @@ int encode_action(const char *action_str)  // it may be possible that server act
         return 1;
     else if(!strcmp(action_str, "flag"))
         return 2;
-    else if(!strcmp(action_str, "state"))
-        return 3;
     else if(!strcmp(action_str, "remove_flag"))
         return 4;
     else if(!strcmp(action_str, "reset"))
         return 5;
-    else if(!strcmp(action_str, "win"))
-        return 6;
     else if(!strcmp(action_str, "exit"))
         return 7;
-    else if (!strcmp(action_str, "game_over"))
-        return 8;
     else
-    {
-        printf("error: command not found");
         return -1;
-    }
 }
 
 size_t receive_all(int socket, void *buffer, size_t size) {
