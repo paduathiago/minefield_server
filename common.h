@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 
 #define TABLE_DIMENSION 4
+#define NBOMBS 3
 
 struct action {
     int type;

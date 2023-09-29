@@ -6,6 +6,21 @@
 
 #include "common.h"
 
+int **init_current_board()
+{
+    int **board = (int **)malloc(TABLE_DIMENSION * sizeof(int *));
+    for (int i = 0; i < TABLE_DIMENSION; i++)
+        board[i] = (int *)malloc(TABLE_DIMENSION * sizeof(int));
+
+    for (int i = 0; i < TABLE_DIMENSION; i++)
+    {
+        for (int j = 0; j < TABLE_DIMENSION; j++)
+            board[i][j] = -2;
+    }
+
+    return board;
+}
+
 void start_new_game(struct action *action_sent, int **current_board)
 {
     current_board = init_current_board();
@@ -38,22 +53,7 @@ int **mount_board(char *file)
     return board;
 }
 
-int **init_current_board()
-{
-    int **board = (int **)malloc(TABLE_DIMENSION * sizeof(int *));
-    for (int i = 0; i < TABLE_DIMENSION; i++)
-        board[i] = (int *)malloc(TABLE_DIMENSION * sizeof(int));
-
-    for (int i = 0; i < TABLE_DIMENSION; i++)
-    {
-        for (int j = 0; j < TABLE_DIMENSION; j++)
-            board[i][j] = -2;
-    }
-
-    return board;
-}
-
-struct action process_action(struct action action_received, const int **answer_board_int, int **current_board)
+struct action process_action(struct action action_received, const int **answer_board_int, int **current_board, int *revealed)
 {
     struct action action_sent;
     if (action_received.type == 0)  // start
@@ -65,17 +65,32 @@ struct action process_action(struct action action_received, const int **answer_b
     
         if(revealed == -1)
         {
-            action_sent.type = 8;
+            action_sent.type = 8;  // game over
+            revealed = 0;
             for (int i = 0; i < TABLE_DIMENSION; i++)
             {
                 for (int j = 0; j < TABLE_DIMENSION; j++)
                     action_sent.board[i][j] = answer_board_int[i][j];
             }
+            return action_sent;
         }
         else
         {
             current_board[action_received.coordinates[0]][action_received.coordinates[1]] = revealed;
             action_sent.board[action_received.coordinates[0]][action_received.coordinates[1]] = revealed;
+            // treat win case
+            revealed++;
+            if(revealed == (TABLE_DIMENSION * NBOMBS) - NBOMBS)
+            {
+                action_sent.type = 6;  // win
+                for (int i = 0; i < TABLE_DIMENSION; i++)
+                {
+                    for (int j = 0; j < TABLE_DIMENSION; j++)
+                        action_sent.board[i][j] = answer_board_int[i][j];
+                }
+                return action_sent;
+            }
+            
             action_sent.type = 3;
         }  
     }
@@ -95,7 +110,9 @@ struct action process_action(struct action action_received, const int **answer_b
     {
         printf("starting new_game\n");
         start_new_game(&action_sent, current_board);
+        revealed = 0;
     }
+
     
 }
 
@@ -153,6 +170,8 @@ int main(int argc, char *argv[])
     struct action action_received;
     struct action action_sent;
 
+    int revealed = 0;
+
     while (1)
     {
         int client_sock = accept(sockfd, client_addr, sizeof(client_storage));
@@ -164,7 +183,7 @@ int main(int argc, char *argv[])
         if (total_bytes_received != sizeof(struct action))
             logexit("receive_all");
 
-        action_sent = process_action(action_received, answer_board_int, current_board);
+        action_sent = process_action(action_received, answer_board_int, current_board, &revealed);
         // current_board = action_sent.board;
     }
 
