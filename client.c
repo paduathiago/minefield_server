@@ -50,7 +50,6 @@ int is_input_valid(const struct action action_received, const char *command, con
             printf("error: cannot insert flag in revealed cell");
             return 0;
         }
-        
     }
     else if(!strcmp(command, "remove_flag"))
     {
@@ -61,6 +60,37 @@ int is_input_valid(const struct action action_received, const char *command, con
         }
     }
     return 1;
+}
+
+char **decorate_board(int **board)
+{
+    char **decorated_board = (char **)malloc(TABLE_DIMENSION * sizeof(char *));
+    for (int i = 0; i < TABLE_DIMENSION; i++)
+        decorated_board[i] = (char *)malloc(TABLE_DIMENSION * sizeof(char));
+
+    for (int i = 0; i < TABLE_DIMENSION; i++)
+    {
+        for (int j = 0; j < TABLE_DIMENSION; j++)
+        {
+            if (board[i][j] == -2)
+                decorated_board[i][j] = '-';
+
+            else if (board[i][j] == -3)
+                decorated_board[i][j] = '>';
+            else
+                sprintf(&decorated_board[i][j], "%d", board[i][j]);
+        }
+    }
+    return decorated_board;
+}
+
+void process_server_action(struct action action_received)
+{
+    if(action_received.type == 3)  // state
+    {
+        char **decorated_board = decorate_board(action_received.board);
+        print_board(decorated_board);
+    }
 }
 
 int main(int argc, char *argv[])
@@ -106,6 +136,7 @@ int main(int argc, char *argv[])
             is_in_valid = is_input_valid(action_received, action_str, action_sent.coordinates[0], action_sent.coordinates[1]);
         }
         action_sent.type == encode_action(action_str);
+        action_sent.board[TABLE_DIMENSION][TABLE_DIMENSION] = action_received.board[TABLE_DIMENSION][TABLE_DIMENSION];
 
         size_t count_bytes_sent = send(sockfd, &action_sent, sizeof(struct action), 0);
         if(count_bytes_sent != sizeof(struct action))
@@ -114,5 +145,7 @@ int main(int argc, char *argv[])
         int total_bytes_received = receive_all(sockfd, &action_received, sizeof(struct action));
         if(total_bytes_received != sizeof(struct action))
             logexit("receive_all");
+        
+        process_server_action(action_received);
     }
 }

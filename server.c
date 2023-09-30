@@ -53,7 +53,7 @@ int **mount_board(char *file)
     return board;
 }
 
-struct action process_action(struct action action_received, const int **answer_board_int, int **current_board, int *count_revealed)
+struct action process_client_action(struct action action_received, const int **answer_board_int, int **current_board, int *count_revealed)
 {
     struct action action_sent;
     if (action_received.type == 0)  // start
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
         if (total_bytes_received != sizeof(struct action))
             logexit("receive_all");
 
-        action_sent = process_action(action_received, answer_board_int, current_board, &count_revealed);
+        action_sent = process_client_action(action_received, answer_board_int, current_board, &count_revealed);
         size_t count_bytes_sent = send(sockfd, &action_sent, sizeof(struct action), 0);
         if(count_bytes_sent != sizeof(struct action))
             logexit("send");
