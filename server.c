@@ -143,8 +143,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    printf("IP Version: %s\n", ip_version); // REMOVE
-    printf("Port: %d\n", port);
 
     int **current_board;
     int **answer_board_int = mount_board(input_file);

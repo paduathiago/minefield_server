@@ -90,7 +90,16 @@ void process_server_action(struct action action_received)
     {
         char **decorated_board = decorate_board(action_received.board);
         print_board(decorated_board);
+        return;
     }
+    else if(action_received.type == 6)  // win
+        printf("YOU WIN!\n");
+        
+    else if(action_received.type == 8)  // game over
+        printf("GAME OVER!\n");
+    
+    char **answer_board_char = mount_answer_board(action_received.board);
+    print_board(answer_board_char);
 }
 
 int main(int argc, char *argv[])
