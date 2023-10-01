@@ -110,7 +110,6 @@ struct action process_client_action(struct action action_received, const int **a
         count_revealed = 0;
     }
     return action_sent;
-    
 }
 
 int main(int argc, char *argv[])
@@ -178,7 +177,14 @@ int main(int argc, char *argv[])
         if (total_bytes_received != sizeof(struct action))
             logexit("receive_all");
 
+        if(action_received.type == 7)
+        {
+            printf("client disconnected\n");
+            close(client_sock);
+            break;
+        }
         action_sent = process_client_action(action_received, answer_board_int, current_board, &count_revealed);
+        
         size_t count_bytes_sent = send(sockfd, &action_sent, sizeof(struct action), 0);
         if(count_bytes_sent != sizeof(struct action))
             logexit("send");
