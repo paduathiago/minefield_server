@@ -57,6 +57,8 @@ int **mount_board(char *file)
 struct action process_client_action(struct action action_received, int **answer_board_int, int **current_board, int *count_revealed)
 {
     struct action action_sent;
+    action_sent = action_received;
+
     if (action_received.type == 0)  // start
     {
         start_new_game(&action_sent, current_board);
@@ -178,25 +180,35 @@ int main(int argc, char *argv[])
             logexit("accept");
         printf("client connected\n");
 
-        /*size_t total_bytes_received = receive_all(client_sock, &action_received, sizeof(struct action));
-        if (total_bytes_received != sizeof(struct action))
+        while(1)
         {
-            logexit("receive_all");
-        }*/
-        size_t count = recv(client_sock, &action_received, sizeof(struct action), 0);
-        printf("action received by server: %d\n", action_received.type);  // REMOVE
+            /*size_t total_bytes_received = receive_all(client_sock, &action_received, sizeof(struct action));
+            if (total_bytes_received != sizeof(struct action))
+            {
+                logexit("receive_all");
+            }*/
+            size_t count = recv(client_sock, &action_received, sizeof(struct action), 0);
+            printf("action received by server: %d\n", action_received.type);  // REMOVE
 
-        if(action_received.type == 7)
-        {
-            printf("client disconnected\n");
-            close(client_sock);
-            break;
-        }
-        action_sent = process_client_action(action_received, answer_board_int, current_board, &count_revealed);
-        
-        size_t count_bytes_sent = send(client_sock, &action_sent, sizeof(struct action), 0);
-        if(count_bytes_sent != sizeof(struct action))
-            logexit("send");
+            if(action_received.type == 7)
+            {
+                printf("client disconnected\n");
+                close(client_sock);
+                break;
+            }
+            action_sent = process_client_action(action_received, answer_board_int, current_board, &count_revealed);
+            
+            size_t count_bytes_sent = send(client_sock, &action_sent, sizeof(struct action), 0);
+            if(count_bytes_sent != sizeof(struct action))
+                logexit("send");
+
+            if(action_sent.type == 6 || action_sent.type == 8)
+            {
+                printf("client disconnected\n");
+                close(client_sock);
+                break;
+            }
+        }    
     }
 
     return 0;
