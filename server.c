@@ -55,7 +55,7 @@ int **mount_board(char *file)
     return board;
 }
 
-struct action process_client_action(struct action action_received, const int **answer_board_int, int **current_board, int *count_revealed)
+struct action process_client_action(struct action action_received, int **answer_board_int, int **current_board, int *count_revealed)
 {
     struct action action_sent;
     if (action_received.type == 0)  // start
@@ -80,7 +80,7 @@ struct action process_client_action(struct action action_received, const int **a
             current_board[action_received.coordinates[0]][action_received.coordinates[1]] = revealed_cell;
             action_sent.board[action_received.coordinates[0]][action_received.coordinates[1]] = revealed_cell;
             count_revealed++;
-            if(count_revealed == (TABLE_DIMENSION * NBOMBS) - NBOMBS)
+            if(*count_revealed == (TABLE_DIMENSION * NBOMBS) - NBOMBS)
             {
                 action_sent.type = 6;  // win
                 for (int i = 0; i < TABLE_DIMENSION; i++)
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
     int opt;
 
     char *ip_version = argv[1];
-    int port = atoi(argv[2]);
+    char * port = argv[2];
 
     while ((opt = getopt(argc, argv, "i:")) != -1)
     {
@@ -165,12 +165,13 @@ int main(int argc, char *argv[])
     struct sockaddr *client_addr = (struct sockaddr *)(&client_storage);
     struct action action_received;
     struct action action_sent;
+    socklen_t client_addr_len = sizeof(client_storage);
 
     int count_revealed = 0;
 
     while (1)
     {
-        int client_sock = accept(sockfd, client_addr, sizeof(client_storage));
+        int client_sock = accept(sockfd, client_addr, &client_addr_len);
         if (client_sock == -1)
             logexit("accept");
         printf("client connected");

@@ -89,7 +89,7 @@ void process_server_action(struct action action_received)
 {
     if(action_received.type == 3)  // state
     {
-        char **decorated_board = decorate_board(action_received.board);
+        char **decorated_board = decorate_board((int **)action_received.board);
         print_board(decorated_board);
         return;
     }
@@ -99,7 +99,7 @@ void process_server_action(struct action action_received)
     else if(action_received.type == 8)  // game over
         printf("GAME OVER!\n");
     
-    char **answer_board_char = mount_answer_board(action_received.board);
+    char **answer_board_char = mount_answer_board((int**)action_received.board);
     print_board(answer_board_char);
 }
 
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
             }
             is_in_valid = is_input_valid(action_received, action_str, action_sent.coordinates[0], action_sent.coordinates[1]);
         }
-        action_sent.type == encode_action(action_str);
+        action_sent.type = encode_action(action_str);
         action_sent.board[TABLE_DIMENSION][TABLE_DIMENSION] = action_received.board[TABLE_DIMENSION][TABLE_DIMENSION];
 
         size_t count_bytes_sent = send(sockfd, &action_sent, sizeof(struct action), 0);

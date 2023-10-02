@@ -14,7 +14,7 @@ struct action {
     int board[TABLE_DIMENSION][TABLE_DIMENSION];
 };
 
-void parse_addr(const char *addrstr, const char *addrport, struct socket_storage *storage);
+void parse_addr(const char *addrstr, const char *addrport, struct sockaddr_storage *storage);
 char** mount_answer_board(int **board);
 void logexit(const char *msg);
 void server_sockaddr_init(char *protocol, char * addr, struct sockaddr_storage *storage);

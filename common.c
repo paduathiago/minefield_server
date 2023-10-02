@@ -72,7 +72,7 @@ char** mount_answer_board(int **board)
     return answer;
 }
 
-void parse_addr(const char *addrstr, const char *addrport, struct socket_storage *storage)
+void parse_addr(const char *addrstr, const char *addrport, struct sockaddr_storage *storage)
 {
     if(addrport == NULL || addrstr == NULL)
     {
