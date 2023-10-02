@@ -11,55 +11,69 @@
 
 int is_input_valid(const struct action action_received, const char *command, const int x, const int y)
 {
-    char *valid_commands[] = {"start", "reveal", "flag", "remove_flag", "reset", "exit"};
+    char *valid_commands[] = {"start", "reset", "exit"};
+    char *valid_with_coordinates[] = {"reveal", "flag", "remove_flag"};
     int is_command_found = 0;
-    for(int i = 0; i < NCOMMANDS; i++)
+
+    for(int i = 0; i < NCOMMANDS - 2; i++)
     {
-        if(!strcmp(command, valid_commands[i]))
+        if(!strcmp(command, valid_with_coordinates[i]))
         {
             is_command_found = 1;
+            if(x < 0 || x >= TABLE_DIMENSION || y < 0 || y >= TABLE_DIMENSION)
+            {
+                printf("error: invalid cell");
+                return 0;
+            }
+            if(!strcmp(command, "reveal"))
+            {
+                if(action_received.board[x][y] != -2)
+                {
+                    printf("error: cell already revealed");
+                    return 0;
+                }
+            }
+            else if(!strcmp(command, "flag"))
+            {
+                if(action_received.board[x][y] == -3)
+                {
+                    printf("error: cell already has a flag");
+                    return 0;
+                }
+                if(action_received.board[x][y] != -2)
+                {
+                    printf("error: cannot insert flag in revealed cell");
+                    return 0;
+                }
+            }
+            else if(!strcmp(command, "remove_flag"))
+            {
+                if(action_received.board[x][y] != -3)
+                {
+                    printf("error: cell does not have a flag");
+                    return 0;
+                }
+            }
+            break;
+        }
+        else if(!strcmp(command, valid_commands[i]))
+        {
+            is_command_found = 1;
+            if(x != -1 || y != -1)
+            {
+                printf("error: command does not take coordinates");
+                return 0;
+            }
             break;
         }
     }
+
     if(!is_command_found)
     {
         printf("error: command not found");
         return 0;
     }
-    if(x < 0 || x >= TABLE_DIMENSION || y < 0 || y >= TABLE_DIMENSION)
-    {
-        printf("error: invalid cell");
-        return 0;
-    }
-    if(!strcmp(command, "reveal"))
-    {
-        if(action_received.board[x][y] != -2)
-        {
-            printf("error: cell already revealed");
-            return 0;
-        }
-    }
-    else if(!strcmp(command, "flag"))
-    {
-        if(action_received.board[x][y] == -3)
-        {
-            printf("error: cell already has a flag");
-            return 0;
-        }
-        if(action_received.board[x][y] != -2)
-        {
-            printf("error: cannot insert flag in revealed cell");
-            return 0;
-        }
-    }
-    else if(!strcmp(command, "remove_flag"))
-    {
-        if(action_received.board[x][y] != -3)
-        {
-            printf("error: cell does not have a flag");
-            return 0;
-        }
-    }
+    
     return 1;
 }
 
@@ -112,10 +126,8 @@ int main(int argc, char *argv[])
     }
 
     struct sockaddr_storage storage;
-    if (parse_addr(argv[1], argv[2], &storage) != 0)
-        logexit("parse_addr");
+    parse_addr(argv[1], argv[2], &storage);
 
-    // it is still necessary to make it flexible to ipv6
     int sockfd = socket(storage.ss_family, SOCK_STREAM, 0);
     if(sockfd == -1) 
         logexit("socket");

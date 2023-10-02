@@ -1,3 +1,6 @@
+#ifndef COMMON_H
+#define COMMON_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,3 +24,5 @@ void server_sockaddr_init(char *protocol, char * addr, struct sockaddr_storage *
 int encode_action(const char *action_str);
 size_t receive_all(int socket, void *buffer, size_t size);
 void print_board(char **board);
+
+#endif
