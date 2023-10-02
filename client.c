@@ -172,7 +172,10 @@ int main(int argc, char *argv[])
 
         int total_bytes_received = receive_all(sockfd, &action_received, sizeof(struct action));
         if(total_bytes_received != sizeof(struct action))
-            logexit("receive_all");
+        {
+            printf("oiiii %d %ld \n", total_bytes_received, sizeof(struct action));
+            logexit("OL[A receive_all");
+        }
         
         process_server_action(action_received);
         if(action_received.type == 6 || action_received.type == 8)

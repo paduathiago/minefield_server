@@ -144,7 +144,6 @@ int main(int argc, char *argv[])
         }
     }
 
-
     int **current_board;
     int **answer_board_int = mount_board(input_file);
     char **answer_board_char = mount_answer_board(answer_board_int);
@@ -174,11 +173,13 @@ int main(int argc, char *argv[])
         int client_sock = accept(sockfd, client_addr, &client_addr_len);
         if (client_sock == -1)
             logexit("accept");
-        printf("client connected");
+        printf("client connected\n");
 
         size_t total_bytes_received = receive_all(client_sock, &action_received, sizeof(struct action));
         if (total_bytes_received != sizeof(struct action))
+        {
             logexit("receive_all");
+        }   
 
         if(action_received.type == 7)
         {

@@ -187,5 +187,6 @@ void print_board(char **board)
     {
         for(int j = 0; j < TABLE_DIMENSION; j++)
             printf("%c\t\t", board[i][j]);
+        printf("\n");
     }
 }
