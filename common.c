@@ -159,11 +159,10 @@ int encode_action(const char *action_str)  // it may be possible that server act
 
 size_t receive_all(int socket, void *buffer, size_t size)
 {
-    char *ptr = (char *)buffer;
     size_t total_received = 0;
 
     while (total_received < size) {
-        size_t bytes_received = recv(socket, ptr + total_received, size - total_received, 0);
+        size_t bytes_received = recv(socket, buffer + total_received, size - total_received, 0);
 
         if (bytes_received <= 0)
         {

@@ -31,7 +31,6 @@ void start_new_game(struct action *action_sent, int **current_board)
         for (int j = 0; j < TABLE_DIMENSION; j++)
             action_sent->board[i][j] = current_board[i][j];
     }
-    action_sent->type = 3;
 }
 
 int **mount_board(char *file)
@@ -59,7 +58,11 @@ struct action process_client_action(struct action action_received, int **answer_
 {
     struct action action_sent;
     if (action_received.type == 0)  // start
+    {
         start_new_game(&action_sent, current_board);
+        action_sent.type = 3;
+    }
+        
 
     else if (action_received.type == 1)  // reveal
     {
@@ -175,11 +178,13 @@ int main(int argc, char *argv[])
             logexit("accept");
         printf("client connected\n");
 
-        size_t total_bytes_received = receive_all(client_sock, &action_received, sizeof(struct action));
+        /*size_t total_bytes_received = receive_all(client_sock, &action_received, sizeof(struct action));
         if (total_bytes_received != sizeof(struct action))
         {
             logexit("receive_all");
-        }   
+        }*/
+        size_t count = recv(client_sock, &action_received, sizeof(struct action), 0);
+        printf("action received by server: %d\n", action_received.type);  // REMOVE
 
         if(action_received.type == 7)
         {
@@ -189,7 +194,7 @@ int main(int argc, char *argv[])
         }
         action_sent = process_client_action(action_received, answer_board_int, current_board, &count_revealed);
         
-        size_t count_bytes_sent = send(sockfd, &action_sent, sizeof(struct action), 0);
+        size_t count_bytes_sent = send(client_sock, &action_sent, sizeof(struct action), 0);
         if(count_bytes_sent != sizeof(struct action))
             logexit("send");
     }
