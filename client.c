@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 
@@ -150,11 +151,22 @@ int main(int argc, char *argv[])
         size_t count_bytes_sent = send(sockfd, &action_sent, sizeof(struct action), 0);
         if(count_bytes_sent != sizeof(struct action))
             logexit("send");
+        
+        if(action_sent.type == 7)
+        {
+            close(sockfd);
+            break;
+        }
 
         int total_bytes_received = receive_all(sockfd, &action_received, sizeof(struct action));
         if(total_bytes_received != sizeof(struct action))
             logexit("receive_all");
         
         process_server_action(action_received);
+        if(action_received.type == 6 || action_received.type == 8)
+        {
+            close(sockfd);
+            break;
+        }
     }
 }

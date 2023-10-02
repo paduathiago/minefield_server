@@ -1,5 +1,6 @@
-#include <arpa/inet.h>
 #include "common.h"
+
+#include <arpa/inet.h>
 
 void logexit(const char *msg)
 {
@@ -156,7 +157,8 @@ int encode_action(const char *action_str)  // it may be possible that server act
         return -1;
 }
 
-size_t receive_all(int socket, void *buffer, size_t size) {
+size_t receive_all(int socket, void *buffer, size_t size)
+{
     char *ptr = (char *)buffer;
     size_t total_received = 0;
 
