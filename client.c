@@ -6,30 +6,28 @@
 
 #include "common.h"
 
-#define COMMAND_LEN 12
+#define COMMAND_LEN 100
 #define NCOMMANDS 6
 
 int is_input_valid(const struct action action_received, const char *command, const int x, const int y)
 {
     char *valid_commands[] = {"start", "reset", "exit"};
     char *valid_with_coordinates[] = {"reveal", "flag", "remove_flag"};
-    int is_command_found = 0;
 
-    for(int i = 0; i < NCOMMANDS - 2; i++)
+    for(int i = 0; i < NCOMMANDS - 3; i++)
     {
         if(!strcmp(command, valid_with_coordinates[i]))
         {
-            is_command_found = 1;
             if(x < 0 || x >= TABLE_DIMENSION || y < 0 || y >= TABLE_DIMENSION)
             {
-                printf("error: invalid cell");
+                printf("error: invalid cell\n");
                 return 0;
             }
             if(!strcmp(command, "reveal"))
             {
                 if(action_received.board[x][y] != -2)
                 {
-                    printf("error: cell already revealed");
+                    printf("error: cell already revealed\n");
                     return 0;
                 }
             }
@@ -37,12 +35,12 @@ int is_input_valid(const struct action action_received, const char *command, con
             {
                 if(action_received.board[x][y] == -3)
                 {
-                    printf("error: cell already has a flag");
+                    printf("error: cell already has a flag\n");
                     return 0;
                 }
                 if(action_received.board[x][y] != -2)
                 {
-                    printf("error: cannot insert flag in revealed cell");
+                    printf("error: cannot insert flag in revealed cell\n");
                     return 0;
                 }
             }
@@ -50,31 +48,24 @@ int is_input_valid(const struct action action_received, const char *command, con
             {
                 if(action_received.board[x][y] != -3)
                 {
-                    printf("error: cell does not have a flag");
+                    printf("error: cell does not have a flag\n");
                     return 0;
                 }
             }
-            break;
+            return 1;
         }
         else if(!strcmp(command, valid_commands[i]))
         {
-            is_command_found = 1;
             if(x != -1 || y != -1)
             {
-                printf("error: command does not take coordinates");
+                printf("error: command does not take coordinates\n");
                 return 0;
             }
-            break;
+            return 1;
         }
     }
-
-    if(!is_command_found)
-    {
-        printf("error: command not found");
-        return 0;
-    }
-    
-    return 1;
+    printf("error: command not found\n");
+    return 0;
 }
 
 char **decorate_board(int board[TABLE_DIMENSION][TABLE_DIMENSION])
@@ -167,9 +158,10 @@ int main(int argc, char *argv[])
             }
             is_in_valid = is_input_valid(action_received, action_str, action_sent.coordinates[0], action_sent.coordinates[1]);
         }
+        
         action_sent.type = encode_action(action_str);
         action_sent.board[TABLE_DIMENSION][TABLE_DIMENSION] = action_received.board[TABLE_DIMENSION][TABLE_DIMENSION];
-
+        
         size_t count_bytes_sent = send(sockfd, &action_sent, sizeof(struct action), 0);
         if(count_bytes_sent != sizeof(struct action))
             logexit("send");
