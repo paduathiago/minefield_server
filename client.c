@@ -77,7 +77,7 @@ int is_input_valid(const struct action action_received, const char *command, con
     return 1;
 }
 
-char **decorate_board(int **board)
+char **decorate_board(int board[TABLE_DIMENSION][TABLE_DIMENSION])
 {
     char **decorated_board = (char **)malloc(TABLE_DIMENSION * sizeof(char *));
     for (int i = 0; i < TABLE_DIMENSION; i++)
@@ -103,7 +103,7 @@ void process_server_action(struct action action_received)
 {
     if(action_received.type == 3)  // state
     {
-        char **decorated_board = decorate_board((int **)action_received.board);
+        char **decorated_board = decorate_board(action_received.board);
         print_board(decorated_board);
         return;
     }
@@ -113,7 +113,7 @@ void process_server_action(struct action action_received)
     else if(action_received.type == 8)  // game over
         printf("GAME OVER!\n");
     
-    char **answer_board_char = mount_answer_board((int**)action_received.board);
+    char **answer_board_char = mount_answer_board((int **)action_received.board);
     print_board(answer_board_char);
 }
 
