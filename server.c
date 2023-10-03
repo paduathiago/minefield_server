@@ -66,7 +66,7 @@ struct action process_client_action(struct action action_received, int **answer_
         if(revealed_cell == -1)
         {
             action_sent.type = 8;  // game over
-            count_revealed = 0;
+            (*count_revealed) = 0;
             for (int i = 0; i < TABLE_DIMENSION; i++)
             {
                 for (int j = 0; j < TABLE_DIMENSION; j++)
@@ -77,8 +77,9 @@ struct action process_client_action(struct action action_received, int **answer_
         else
         {
             current_board[action_received.coordinates[0]][action_received.coordinates[1]] = revealed_cell;
-            count_revealed++;
-            if(*count_revealed == (TABLE_DIMENSION * NBOMBS) - NBOMBS)
+            (*count_revealed)++;
+            printf("count_revealed: %d\n", *count_revealed);
+            if((*count_revealed) == (TABLE_DIMENSION * TABLE_DIMENSION) - NBOMBS)
             {
                 action_sent.type = 6;  // win
                 for (int i = 0; i < TABLE_DIMENSION; i++)
@@ -105,7 +106,7 @@ struct action process_client_action(struct action action_received, int **answer_
     {
         printf("starting new_game\n");
         start_new_game(current_board);
-        count_revealed = 0;
+        (*count_revealed) = 0;
         action_sent.type = 3;
     }
     
