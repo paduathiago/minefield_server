@@ -23,14 +23,9 @@ int **init_current_board()
     return board;
 }
 
-void start_new_game(struct action *action_sent, int **current_board)
+void start_new_game(int **current_board)
 {
     current_board = init_current_board();
-    for (int i = 0; i < TABLE_DIMENSION; i++)
-    {
-        for (int j = 0; j < TABLE_DIMENSION; j++)
-            action_sent->board[i][j] = current_board[i][j];
-    }
 }
 
 int **mount_board(char *file)
@@ -57,15 +52,13 @@ int **mount_board(char *file)
 struct action process_client_action(struct action action_received, int **answer_board_int, int **current_board, int *count_revealed)
 {
     struct action action_sent;
-    action_sent = action_received;
 
     if (action_received.type == 0)  // start
     {
-        start_new_game(&action_sent, current_board);
+        start_new_game(current_board);
         action_sent.type = 3;
     }
         
-
     else if (action_received.type == 1)  // reveal
     {
         int revealed_cell = answer_board_int[action_received.coordinates[0]][action_received.coordinates[1]];
@@ -79,11 +72,11 @@ struct action process_client_action(struct action action_received, int **answer_
                 for (int j = 0; j < TABLE_DIMENSION; j++)
                     action_sent.board[i][j] = answer_board_int[i][j];
             }
+            return action_sent;
         }
         else
         {
             current_board[action_received.coordinates[0]][action_received.coordinates[1]] = revealed_cell;
-            action_sent.board[action_received.coordinates[0]][action_received.coordinates[1]] = revealed_cell;
             count_revealed++;
             if(*count_revealed == (TABLE_DIMENSION * NBOMBS) - NBOMBS)
             {
@@ -101,21 +94,27 @@ struct action process_client_action(struct action action_received, int **answer_
     else if (action_received.type == 2)  // flag
     {
         current_board[action_received.coordinates[0]][action_received.coordinates[1]] = -3;
-        action_sent.board[action_received.coordinates[0]][action_received.coordinates[1]] = -3;
         action_sent.type = 3;
     }
     else if (action_received.type == 4)  // remove_flag
     {
         current_board[action_received.coordinates[0]][action_received.coordinates[1]] = -2;
-        action_sent.board[action_received.coordinates[0]][action_received.coordinates[1]] = -2;
         action_sent.type = 3;
     }
     else if (action_received.type == 5)  // reset
     {
         printf("starting new_game\n");
-        start_new_game(&action_sent, current_board);
+        start_new_game(current_board);
         count_revealed = 0;
+        action_sent.type = 3;
     }
+    
+    for(int i = 0; i < TABLE_DIMENSION; i++)
+    {
+        for(int j = 0; j < TABLE_DIMENSION; j++)
+            action_sent.board[i][j] = current_board[i][j];
+    }
+
     return action_sent;
 }
 
@@ -149,7 +148,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    int **current_board;
+    int **current_board = init_current_board();
     int **answer_board_int = mount_board(input_file);
     char **answer_board_char = mount_answer_board(answer_board_int);
     print_board(answer_board_char);
@@ -187,7 +186,7 @@ int main(int argc, char *argv[])
             {
                 logexit("receive_all");
             }*/
-            size_t count = recv(client_sock, &action_received, sizeof(struct action), 0);
+            recv(client_sock, &action_received, sizeof(struct action), 0);
             printf("action received by server: %d\n", action_received.type);  // REMOVE
 
             if(action_received.type == 7)

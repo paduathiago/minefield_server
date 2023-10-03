@@ -113,7 +113,17 @@ void process_server_action(struct action action_received)
     else if(action_received.type == 8)  // game over
         printf("GAME OVER!\n");
     
-    char **answer_board_char = mount_answer_board((int **)action_received.board);
+    int **received_board = (int **)malloc(TABLE_DIMENSION * sizeof(int *));
+    for (int i = 0; i < TABLE_DIMENSION; i++)
+        received_board[i] = (int *)malloc(TABLE_DIMENSION * sizeof(int));
+    
+    for(int i = 0; i < TABLE_DIMENSION; i++)
+    {
+        for(int j = 0; j < TABLE_DIMENSION; j++)
+            received_board[i][j] = action_received.board[i][j];
+    }
+
+    char **answer_board_char = mount_answer_board(received_board);
     print_board(answer_board_char);
 }
 
@@ -171,7 +181,7 @@ int main(int argc, char *argv[])
         }
 
         //int total_bytes_received = receive_all(sockfd, &action_received, sizeof(struct action));
-        size_t count = recv(sockfd, &action_received, sizeof(struct action), 0);
+        recv(sockfd, &action_received, sizeof(struct action), 0);
         printf("action received by client: %d\n", action_received.type);
 
         /*if(total_bytes_received != sizeof(struct action))

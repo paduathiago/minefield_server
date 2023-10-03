@@ -3,3 +3,4 @@ test.c
 *.txt
 meu_programa
 test*
+*.o
