@@ -23,9 +23,9 @@ int **init_current_board()
     return board;
 }
 
-void start_new_game(int **current_board)
+void start_new_game(int ***current_board)
 {
-    current_board = init_current_board();
+    (*current_board) = init_current_board();
 }
 
 int **mount_board(char *file)
@@ -49,7 +49,7 @@ int **mount_board(char *file)
     return board;
 }
 
-struct action process_client_action(struct action action_received, int **answer_board_int, int **current_board, int *count_revealed)
+struct action process_client_action(struct action action_received, int **answer_board_int, int ***current_board, int *count_revealed)
 {
     struct action action_sent;
 
@@ -76,9 +76,9 @@ struct action process_client_action(struct action action_received, int **answer_
         }
         else
         {
-            current_board[action_received.coordinates[0]][action_received.coordinates[1]] = revealed_cell;
+            (*current_board)[action_received.coordinates[0]][action_received.coordinates[1]] = revealed_cell;
             (*count_revealed)++;
-            printf("count_revealed: %d\n", *count_revealed);
+            printf("count_revealed: %d\n", *count_revealed);  // REMOVE
             if((*count_revealed) == (TABLE_DIMENSION * TABLE_DIMENSION) - NBOMBS)
             {
                 action_sent.type = 6;  // win
@@ -94,12 +94,12 @@ struct action process_client_action(struct action action_received, int **answer_
     }
     else if (action_received.type == 2)  // flag
     {
-        current_board[action_received.coordinates[0]][action_received.coordinates[1]] = -3;
+        (*current_board)[action_received.coordinates[0]][action_received.coordinates[1]] = -3;
         action_sent.type = 3;
     }
     else if (action_received.type == 4)  // remove_flag
     {
-        current_board[action_received.coordinates[0]][action_received.coordinates[1]] = -2;
+        (*current_board)[action_received.coordinates[0]][action_received.coordinates[1]] = -2;
         action_sent.type = 3;
     }
     else if (action_received.type == 5)  // reset
@@ -113,7 +113,7 @@ struct action process_client_action(struct action action_received, int **answer_
     for(int i = 0; i < TABLE_DIMENSION; i++)
     {
         for(int j = 0; j < TABLE_DIMENSION; j++)
-            action_sent.board[i][j] = current_board[i][j];
+            action_sent.board[i][j] = (*current_board)[i][j];
     }
 
     return action_sent;
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
                 close(client_sock);
                 break;
             }
-            action_sent = process_client_action(action_received, answer_board_int, current_board, &count_revealed);
+            action_sent = process_client_action(action_received, answer_board_int, &current_board, &count_revealed);
             
             size_t count_bytes_sent = send(client_sock, &action_sent, sizeof(struct action), 0);
             if(count_bytes_sent != sizeof(struct action))
@@ -204,12 +204,11 @@ int main(int argc, char *argv[])
 
             if(action_sent.type == 6 || action_sent.type == 8)
             {
-                printf("client disconnected\n");
+                printf("client disconnected\n");  // remove
                 close(client_sock);
                 break;
             }
         }    
     }
-
     return 0;
 }
