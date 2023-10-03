@@ -53,19 +53,19 @@ struct action process_client_action(struct action action_received, int **answer_
 {
     struct action action_sent;
 
-    if (action_received.type == 0)  // start
+    if (action_received.type == START)
     {
         start_new_game(current_board);
-        action_sent.type = 3;
+        action_sent.type = STATE;
     }
         
-    else if (action_received.type == 1)  // reveal
+    else if (action_received.type == REVEAL)
     {
         int revealed_cell = answer_board_int[action_received.coordinates[0]][action_received.coordinates[1]];
     
         if(revealed_cell == -1)
         {
-            action_sent.type = 8;  // game over
+            action_sent.type = GAME_OVER;
             (*count_revealed) = 0;
             for (int i = 0; i < TABLE_DIMENSION; i++)
             {
@@ -81,7 +81,7 @@ struct action process_client_action(struct action action_received, int **answer_
             printf("count_revealed: %d\n", *count_revealed);  // REMOVE
             if((*count_revealed) == (TABLE_DIMENSION * TABLE_DIMENSION) - NBOMBS)
             {
-                action_sent.type = 6;  // win
+                action_sent.type = WIN;
                 for (int i = 0; i < TABLE_DIMENSION; i++)
                 {
                     for (int j = 0; j < TABLE_DIMENSION; j++)
@@ -89,25 +89,25 @@ struct action process_client_action(struct action action_received, int **answer_
                 }
                 return action_sent;
             }
-            action_sent.type = 3;
+            action_sent.type = STATE;
         }  
     }
-    else if (action_received.type == 2)  // flag
+    else if (action_received.type == FLAG)
     {
         (*current_board)[action_received.coordinates[0]][action_received.coordinates[1]] = -3;
-        action_sent.type = 3;
+        action_sent.type = STATE;
     }
-    else if (action_received.type == 4)  // remove_flag
+    else if (action_received.type == REMOVE_FLAG)
     {
         (*current_board)[action_received.coordinates[0]][action_received.coordinates[1]] = -2;
-        action_sent.type = 3;
+        action_sent.type = STATE;
     }
-    else if (action_received.type == 5)  // reset
+    else if (action_received.type == RESET)
     {
         printf("starting new_game\n");
         start_new_game(current_board);
         (*count_revealed) = 0;
-        action_sent.type = 3;
+        action_sent.type = STATE;
     }
     
     for(int i = 0; i < TABLE_DIMENSION; i++)
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
             if(count_bytes_sent != sizeof(struct action))
                 logexit("send");
 
-            if(action_sent.type == 6 || action_sent.type == 8)
+            if(action_sent.type == WIN || action_sent.type == GAME_OVER)
             {
                 printf("client disconnected\n");  // remove
                 close(client_sock);
