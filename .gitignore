@@ -4,3 +4,4 @@ test.c
 meu_programa
 test*
 *.o
+exe*

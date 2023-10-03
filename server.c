@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
             recv(client_sock, &action_received, sizeof(struct action), 0);
             printf("action received by server: %d\n", action_received.type);  // REMOVE
 
-            if(action_received.type == 7)
+            if(action_received.type == EXIT)
             {
                 printf("client disconnected\n");
                 close(client_sock);
