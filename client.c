@@ -25,7 +25,7 @@ int is_input_valid(const struct action action_received, const char *command, con
             }
             if(!strcmp(command, "reveal"))
             {
-                if(action_received.board[x][y] != -2)
+                if(action_received.board[x][y] != -2 && action_received.board[x][y] != -3)
                 {
                     printf("error: cell already revealed\n");
                     return 0;
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
         }*/
         
         process_server_action(action_received);
-        if(action_received.type == 6 || action_received.type == 8)
+        if(action_received.type == WIN || action_received.type == GAME_OVER)
         {
             close(sockfd);
             break;
