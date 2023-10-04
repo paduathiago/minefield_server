@@ -92,16 +92,16 @@ char **decorate_board(int board[TABLE_DIMENSION][TABLE_DIMENSION])
 
 void process_server_action(struct action action_received)
 {
-    if(action_received.type == 3)  // state
+    if(action_received.type == STATE)
     {
         char **decorated_board = decorate_board(action_received.board);
         print_board(decorated_board);
         return;
     }
-    else if(action_received.type == 6)  // win
+    else if(action_received.type == WIN)
         printf("YOU WIN!\n");
         
-    else if(action_received.type == 8)  // game over
+    else if(action_received.type == GAME_OVER)
         printf("GAME OVER!\n");
     
     int **received_board = (int **)malloc(TABLE_DIMENSION * sizeof(int *));
