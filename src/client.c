@@ -174,7 +174,6 @@ int main(int argc, char *argv[])
 
         //int total_bytes_received = receive_all(sockfd, &action_received, sizeof(struct action));
         recv(sockfd, &action_received, sizeof(struct action), 0);
-        printf("action received by client: %d\n", action_received.type);
 
         /*if(total_bytes_received != sizeof(struct action))
         {
@@ -183,7 +182,7 @@ int main(int argc, char *argv[])
         }*/
         
         process_server_action(action_received);
-        if(action_received.type == WIN || action_received.type == GAME_OVER)
+        if(action_received.type == WIN || action_received.type == GAME_OVER)  // Remove
         {
             close(sockfd);
             break;

@@ -78,7 +78,7 @@ struct action process_client_action(struct action action_received, int **answer_
         {
             (*current_board)[action_received.coordinates[0]][action_received.coordinates[1]] = revealed_cell;
             (*count_revealed)++;
-            printf("count_revealed: %d\n", *count_revealed);  // REMOVE
+
             if((*count_revealed) == (TABLE_DIMENSION * TABLE_DIMENSION) - NBOMBS)
             {
                 action_sent.type = WIN;
@@ -188,7 +188,6 @@ int main(int argc, char *argv[])
                 logexit("receive_all");
             }*/
             recv(client_sock, &action_received, sizeof(struct action), 0);
-            printf("action received by server: %d\n", action_received.type);  // REMOVE
 
             if(action_received.type == EXIT)
             {

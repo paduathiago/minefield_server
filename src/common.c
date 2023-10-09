@@ -139,7 +139,7 @@ void server_sockaddr_init(char *protocol, char * addr, struct sockaddr_storage *
     }
 }
 
-int encode_action(const char *action_str)  // it may be possible that server actions dont need to be encoded
+int encode_action(const char *action_str)
 {
     if(!strcmp(action_str, "start"))
         return 0;
