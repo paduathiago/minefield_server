@@ -104,7 +104,7 @@ struct action process_client_action(struct action action_received, int **answer_
     }
     else if (action_received.type == RESET)
     {
-        printf("starting new_game\n");
+        printf("starting new game\n");
         start_new_game(current_board);
         (*count_revealed) = 0;
         action_sent.type = STATE;
@@ -200,13 +200,6 @@ int main(int argc, char *argv[])
             size_t count_bytes_sent = send(client_sock, &action_sent, sizeof(struct action), 0);
             if(count_bytes_sent != sizeof(struct action))
                 logexit("send");
-
-            if(action_sent.type == WIN || action_sent.type == GAME_OVER)
-            {
-                printf("client disconnected\n");  // remove
-                close(client_sock);
-                break;
-            }
         }    
     }
     return 0;

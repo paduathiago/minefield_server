@@ -96,6 +96,11 @@ void process_server_action(struct action action_received)
     {
         char **decorated_board = decorate_board(action_received.board);
         print_board(decorated_board);
+
+        for (int i = 0; i < TABLE_DIMENSION; i++)
+            free(decorated_board[i]);
+        free(decorated_board);
+
         return;
     }
     else if(action_received.type == WIN)
@@ -116,6 +121,10 @@ void process_server_action(struct action action_received)
 
     char **answer_board_char = mount_answer_board(received_board);
     print_board(answer_board_char);
+    
+    for (int i = 0; i < TABLE_DIMENSION; i++)
+        free(answer_board_char[i]);
+    free(answer_board_char);
 }
 
 int main(int argc, char *argv[])
@@ -166,7 +175,7 @@ int main(int argc, char *argv[])
         if(count_bytes_sent != sizeof(struct action))
             logexit("send");
         
-        if(action_sent.type == 7)
+        if(action_sent.type == EXIT)
         {
             close(sockfd);
             break;
@@ -182,10 +191,5 @@ int main(int argc, char *argv[])
         }*/
         
         process_server_action(action_received);
-        if(action_received.type == WIN || action_received.type == GAME_OVER)  // Remove
-        {
-            close(sockfd);
-            break;
-        }
     }
 }
