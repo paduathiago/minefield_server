@@ -19,51 +19,51 @@ char** mount_answer_board(int **board)
         for(int j = 0; j < TABLE_DIMENSION; j++)
         {
             int count_bombs = 0;
-            if(board[i][j] == -1)  // case when cell has a bomb
+            if(board[i][j] == BOMB)  // case when cell has a bomb
             {
                 answer[i][j] = '*';
                 continue;
             }
-            if(board[i][j] == -2)
+            if(board[i][j] == HIDDEN)
             {
                 answer[i][j] = '-';
                 continue;
             }
-            if(board[i][j] == -3)
+            if(board[i][j] == FLAGGED)
             {
                 answer[i][j] = '>';
                 continue;
             }
             if (i > 0) {
-                if(board[i - 1][j] == -1)  //north neighbor
+                if(board[i - 1][j] == BOMB)  //northern neighbor
                     count_bombs++;
             }
             if (i < TABLE_DIMENSION - 1) {
-                if(board[i + 1][j] == -1)  // south neighbor
+                if(board[i + 1][j] == BOMB)  // southern neighbor
                     count_bombs++;
             }
             if (j > 0) {
-                if(board[i][j - 1] == -1)  // west neighbor
+                if(board[i][j - 1] == BOMB)  // western neighbor
                     count_bombs++;
             }
             if (j < TABLE_DIMENSION - 1) {
-                if(board[i][j + 1] == -1)  // east neighbor
+                if(board[i][j + 1] == BOMB)  // eastern neighbor
                     count_bombs++;
             }
             if (i > 0 && j > 0) {
-                if(board[i - 1][j - 1] == -1)  // northwest neighbor
+                if(board[i - 1][j - 1] == BOMB)  // northwestern neighbor
                     count_bombs++;
             }
             if (i > 0 && j < TABLE_DIMENSION - 1) {
-                if(board[i - 1][j + 1] == -1)  // northeast neighbor
+                if(board[i - 1][j + 1] == BOMB)  // northeastern neighbor
                     count_bombs++;
             }
             if (i < TABLE_DIMENSION - 1 && j > 0) {
-                if(board[i + 1][j - 1] == -1)  // southwest neighbor
+                if(board[i + 1][j - 1] == BOMB)  // southwestern neighbor
                     count_bombs++;
             }
-            if (i < TABLE_DIMENSION -1 && j < TABLE_DIMENSION - 1) {
-                if(board[i + 1][j + 1] == -1)  // southeast neighbor
+            if (i < TABLE_DIMENSION - 1 && j < TABLE_DIMENSION - 1) {
+                if(board[i + 1][j + 1] == BOMB)  // southeastern neighbor
                     count_bombs++;
             }
             sprintf(&answer[i][j], "%d", count_bombs);
@@ -142,17 +142,17 @@ void server_sockaddr_init(char *protocol, char * addr, struct sockaddr_storage *
 int encode_action(const char *action_str)
 {
     if(!strcmp(action_str, "start"))
-        return 0;
+        return START;
     else if(!strcmp(action_str, "reveal"))
-        return 1;
+        return REVEAL;
     else if(!strcmp(action_str, "flag"))
-        return 2;
+        return FLAG;
     else if(!strcmp(action_str, "remove_flag"))
-        return 4;
+        return REMOVE_FLAG;
     else if(!strcmp(action_str, "reset"))
-        return 5;
+        return RESET;
     else if(!strcmp(action_str, "exit"))
-        return 7;
+        return EXIT;
     else
         return -1;
 }
