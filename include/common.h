@@ -21,6 +21,10 @@
 #define EXIT 7
 #define GAME_OVER 8
 
+#define BOMB -1
+#define HIDDEN -2
+#define FLAGGED -3
+
 struct action {
     int type;
     int coordinates[2];
