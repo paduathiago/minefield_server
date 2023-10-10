@@ -8,26 +8,6 @@
 
 #include "common.h"
 
-int **init_current_board()
-{
-    int **board = (int **)malloc(TABLE_DIMENSION * sizeof(int *));
-    for (int i = 0; i < TABLE_DIMENSION; i++)
-        board[i] = (int *)malloc(TABLE_DIMENSION * sizeof(int));
-
-    for (int i = 0; i < TABLE_DIMENSION; i++)
-    {
-        for (int j = 0; j < TABLE_DIMENSION; j++)
-            board[i][j] = -2;
-    }
-
-    return board;
-}
-
-void start_new_game(int ***current_board)
-{
-    (*current_board) = init_current_board();
-}
-
 int **mount_board(char *file)
 {
     int **board = (int **)malloc(TABLE_DIMENSION * sizeof(int *));
@@ -49,6 +29,26 @@ int **mount_board(char *file)
     return board;
 }
 
+int **init_current_board()
+{
+    int **board = (int **)malloc(TABLE_DIMENSION * sizeof(int *));
+    for (int i = 0; i < TABLE_DIMENSION; i++)
+        board[i] = (int *)malloc(TABLE_DIMENSION * sizeof(int));
+
+    for (int i = 0; i < TABLE_DIMENSION; i++)
+    {
+        for (int j = 0; j < TABLE_DIMENSION; j++)
+            board[i][j] = -2;
+    }
+
+    return board;
+}
+
+void start_new_game(int ***current_board)
+{
+    (*current_board) = init_current_board();
+}
+
 struct action process_client_action(struct action action_received, int **answer_board_int, int ***current_board, int *count_revealed)
 {
     struct action action_sent;
@@ -56,6 +56,7 @@ struct action process_client_action(struct action action_received, int **answer_
     if (action_received.type == START)
     {
         start_new_game(current_board);
+        (*count_revealed) = 0;
         action_sent.type = STATE;
     }
         
@@ -183,9 +184,7 @@ int main(int argc, char *argv[])
 
         while(1)
         {
-            size_t total_bytes_received = receive_all(client_sock, &action_received, sizeof(struct action));
-            if (total_bytes_received != sizeof(struct action))
-                logexit("receive_all");
+            receive_all(client_sock, &action_received, sizeof(struct action));
 
             if(action_received.type == EXIT)
             {

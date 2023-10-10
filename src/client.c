@@ -25,7 +25,7 @@ int is_input_valid(const struct action action_received, const char *command, con
             }
             if(!strcmp(command, "reveal"))
             {
-                if(action_received.board[x][y] != -2 && action_received.board[x][y] != -3)
+                if(action_received.board[x][y] != HIDDEN && action_received.board[x][y] != FLAGGED)
                 {
                     printf("error: cell already revealed\n");
                     return 0;
@@ -33,12 +33,12 @@ int is_input_valid(const struct action action_received, const char *command, con
             }
             else if(!strcmp(command, "flag"))
             {
-                if(action_received.board[x][y] == -3)
+                if(action_received.board[x][y] == FLAGGED)
                 {
                     printf("error: cell already has a flag\n");
                     return 0;
                 }
-                if(action_received.board[x][y] != -2)
+                if(action_received.board[x][y] != HIDDEN)
                 {
                     printf("error: cannot insert flag in revealed cell\n");
                     return 0;
@@ -46,7 +46,7 @@ int is_input_valid(const struct action action_received, const char *command, con
             }
             else if(!strcmp(command, "remove_flag"))
             {
-                if(action_received.board[x][y] != -3)
+                if(action_received.board[x][y] != FLAGGED)
                 {
                     printf("error: cell does not have a flag\n");
                     return 0;
@@ -78,10 +78,10 @@ char **decorate_board(int board[TABLE_DIMENSION][TABLE_DIMENSION])
     {
         for (int j = 0; j < TABLE_DIMENSION; j++)
         {
-            if (board[i][j] == -2)
+            if (board[i][j] == HIDDEN)
                 decorated_board[i][j] = '-';
 
-            else if (board[i][j] == -3)
+            else if (board[i][j] == FLAGGED)
                 decorated_board[i][j] = '>';
             else
                 sprintf(&decorated_board[i][j], "%d", board[i][j]);
@@ -181,9 +181,7 @@ int main(int argc, char *argv[])
             break;
         }
 
-        int total_bytes_received = receive_all(sockfd, &action_received, sizeof(struct action));
-        if(total_bytes_received != sizeof(struct action))
-            logexit("receive_all");
+        receive_all(sockfd, &action_received, sizeof(struct action));
         
         process_server_action(action_received);
     }
