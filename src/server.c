@@ -167,9 +167,10 @@ int main(int argc, char *argv[])
 
     struct sockaddr_storage client_storage;
     struct sockaddr *client_addr = (struct sockaddr *)(&client_storage);
+    socklen_t client_addr_len = sizeof(client_storage);
+
     struct action action_received;
     struct action action_sent;
-    socklen_t client_addr_len = sizeof(client_storage);
 
     int count_revealed = 0;
 
@@ -182,12 +183,9 @@ int main(int argc, char *argv[])
 
         while(1)
         {
-            /*size_t total_bytes_received = receive_all(client_sock, &action_received, sizeof(struct action));
+            size_t total_bytes_received = receive_all(client_sock, &action_received, sizeof(struct action));
             if (total_bytes_received != sizeof(struct action))
-            {
                 logexit("receive_all");
-            }*/
-            recv(client_sock, &action_received, sizeof(struct action), 0);
 
             if(action_received.type == EXIT)
             {

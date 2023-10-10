@@ -181,14 +181,9 @@ int main(int argc, char *argv[])
             break;
         }
 
-        //int total_bytes_received = receive_all(sockfd, &action_received, sizeof(struct action));
-        recv(sockfd, &action_received, sizeof(struct action), 0);
-
-        /*if(total_bytes_received != sizeof(struct action))
-        {
-            printf("oiiii %d %ld \n", total_bytes_received, sizeof(struct action));
-            logexit("OL[A receive_all");
-        }*/
+        int total_bytes_received = receive_all(sockfd, &action_received, sizeof(struct action));
+        if(total_bytes_received != sizeof(struct action))
+            logexit("receive_all");
         
         process_server_action(action_received);
     }
